@@ -13,6 +13,8 @@ ENV CASSANDRA_HOME=/usr/local/apache-cassandra-${CASSANDRA_VERSION} \
     DI_VERSION=1.2.0 \
     DI_SHA=81231da1cd074fdc81af62789fead8641ef3f24b6b07366a1c34e5b059faf363
 
+ADD files /
+
 RUN set -e \
     && echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
     && apt-get update \
@@ -23,17 +25,16 @@ RUN set -e \
     && wget -q -O - https://github.com/Yelp/dumb-init/releases/download/v${DI_VERSION}/dumb-init_${DI_VERSION}_amd64 > /sbin/dumb-init \
     && echo "$DI_SHA  /sbin/dumb-init" | sha256sum -c - \
     && chmod +x /sbin/dumb-init \
+    && chmod +x /ready-probe.sh \
     && mkdir -p $CASSANDRA_CONF \
+    && mv /cassandra.yaml $CASSANDRA_CONF \
     && cp \
-            $CASSANDRA_HOME/conf/cassandra.yaml \
-            $CASSANDRA_HOME/conf/cassandra-env.sh \
-            $CASSANDRA_HOME/conf/cassandra-rackdc.properties \
-            $CASSANDRA_HOME/conf/cassandra-topology.properties \
-            $CASSANDRA_HOME/conf/commitlog_archiving.properties \
-            $CASSANDRA_HOME/conf/hotspot_compiler \
-            $CASSANDRA_HOME/conf/jvm.options \
-            $CASSANDRA_HOME/conf/logback.xml \
-            $CASSANDRA_CONF \
+       $CASSANDRA_HOME/conf/cassandra-env.sh \
+       $CASSANDRA_HOME/conf/jvm.options \
+       $CASSANDRA_HOME/conf/logback.xml \
+       $CASSANDRA_HOME/conf/hotspot_compiler \
+       $CASSANDRA_HOME/conf/commitlog_archiving.properties \
+       $CASSANDRA_CONF \
     && adduser --disabled-password --no-create-home --gecos '' --disabled-login cassandra \
     && if [ -n "$DEV_CONTAINER" ]; then apt-get -y --no-install-recommends install python; else rm -rf  $CASSANDRA_HOME/pylib; fi \
     && apt-get -y purge wget localepurge \
@@ -64,7 +65,7 @@ RUN set -e \
             /usr/share/man/ \
             /tmp/*
 
-VOLUME ["/var/lib/cassandra"]
+VOLUME ["/cassandra/data"]
 
 # 7000: intra-node communication
 # 7001: TLS intra-node communication
