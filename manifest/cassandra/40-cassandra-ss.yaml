@@ -72,13 +72,14 @@ spec:
           timeoutSeconds: 5
         volumeMounts:
         - name: datadir
-          mountPath: /cassandra_data
+          mountPath: /cassandra/data
   volumeClaimTemplates:
   - metadata:
       name: datadir
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: [ "ReadWriteMany" ]
+      storageClassName: hostpath
       resources:
         requests:
-          storage: 500Gi
+          storage: 10Gi
 

@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: hostpath-claim
+  namespace: cassandra
+spec:
+  storageClassName: "hostpath"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi

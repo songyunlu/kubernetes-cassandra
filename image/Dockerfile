@@ -8,7 +8,7 @@ LABEL maintainer="Jimmy Lu <gn00023040@gmail.com>"
 
 ENV CASSANDRA_HOME=/usr/local/apache-cassandra-${CASSANDRA_VERSION} \
     CASSANDRA_CONF=/etc/cassandra \
-    CASSANDRA_LOGS=/var/log/cassandra \
+    CASSANDRA_DATA=/cassandra/data \
     PATH=${PATH}:/usr/local/apache-cassandra-${CASSANDRA_VERSION}/bin \
     DI_VERSION=1.2.0 \
     DI_SHA=81231da1cd074fdc81af62789fead8641ef3f24b6b07366a1c34e5b059faf363
@@ -27,11 +27,9 @@ RUN set -e \
     && chmod +x /sbin/dumb-init \
     && chmod +x /ready-probe.sh \
     && mkdir -p $CASSANDRA_CONF \
-    && mv /cassandra.yaml $CASSANDRA_CONF \
+    && mv /cassandra.yaml /cassandra-env.sh /logback.xml $CASSANDRA_CONF \
     && cp \
-       $CASSANDRA_HOME/conf/cassandra-env.sh \
        $CASSANDRA_HOME/conf/jvm.options \
-       $CASSANDRA_HOME/conf/logback.xml \
        $CASSANDRA_HOME/conf/hotspot_compiler \
        $CASSANDRA_HOME/conf/commitlog_archiving.properties \
        $CASSANDRA_CONF \
@@ -74,4 +72,4 @@ VOLUME ["/cassandra/data"]
 # 9160: thrift service
 EXPOSE 7000 7001 7199 9042 9160
 
-CMD ["/sbin/dumb-init", "/bin/bash", "${CASSANDRA_HOME}/bin/cassandra"]
+CMD ["/sbin/dumb-init", "/bin/bash", "run.sh"]
