@@ -26,11 +26,11 @@ spec:
           name: cql
         resources:
           limits:
-            cpu: "500m"
-            memory: 2Gi
+            cpu: "8"
+            memory: 8Gi
           requests:
-           cpu: "500m"
-           memory: 2Gi
+           cpu: "8"
+           memory: 8Gi
         securityContext:
           capabilities:
             add:
@@ -41,9 +41,9 @@ spec:
               command: ["/bin/sh", "-c", "PID=$(pidof java) && kill $PID && while ps -p $PID > /dev/null; do sleep 1; done"]
         env:
           - name: MAX_HEAP_SIZE
-            value: 1G
+            value: 3G
           - name: HEAP_NEWSIZE
-            value: 100M
+            value: 512M
           - name: CASSANDRA_SEEDS
             value: "cassandra-0.cassandra.cassandra.svc.cluster.local"
           - name: CASSANDRA_CLUSTER_NAME
@@ -81,5 +81,5 @@ spec:
       storageClassName: hostpath
       resources:
         requests:
-          storage: 10Gi
+          storage: 128Gi
 

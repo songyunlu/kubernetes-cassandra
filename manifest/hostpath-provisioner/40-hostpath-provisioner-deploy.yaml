@@ -31,6 +31,7 @@ spec:
           volumeMounts:
             - name: pv-volume
               mountPath: /store
+      serviceAccountName: hostpath-provisioner
       volumes:
         - name: pv-volume
           hostPath:
