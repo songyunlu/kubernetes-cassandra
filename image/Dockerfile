@@ -1,8 +1,7 @@
-FROM gn00023040/oracle-java-8-ubuntu-slim:8u144
+FROM gn00023040/oracle-java-8-ubuntu-slim:8u152
 
-ARG CASSANDRA_VERSION
-ARG CASSANDRA_SHA1
-ARG DEV_CONTAINER
+ARG CASSANDRA_VERSION=3.0.9
+ARG DEV_CONTAINER=false
 
 LABEL maintainer="Jimmy Lu <gn00023040@gmail.com>"
 
@@ -20,11 +19,12 @@ RUN set -e \
     && apt-get update \
     && apt-get -qq -y --force-yes install wget libjemalloc1 localepurge \
     && wget -q -O /tmp/cassandra.tar.gz http://archive.apache.org/dist/cassandra/${CASSANDRA_VERSION}/apache-cassandra-${CASSANDRA_VERSION}-bin.tar.gz \
-    && echo "${CASSANDRA_SHA1} /tmp/cassandra.tar.gz" | sha1sum -c - \
+    && wget -q -O /tmp/cassandra.tar.gz.asc http://archive.apache.org/dist/cassandra/${CASSANDRA_VERSION}/apache-cassandra-${CASSANDRA_VERSION}-bin.tar.gz.asc \
+    && wget -q -O /tmp/KEYS http://archive.apache.org/dist/cassandra/KEYS \
+    && export GNUPGHOME="$(mktemp -d)" \
+    && gpg --import /tmp/KEYS \
+    && gpg --batch --verify "/tmp/cassandra.tar.gz.asc" "/tmp/cassandra.tar.gz" \
     && tar -xzf /tmp/cassandra.tar.gz -C /usr/local \
-    && wget -q -O - https://github.com/Yelp/dumb-init/releases/download/v${DI_VERSION}/dumb-init_${DI_VERSION}_amd64 > /sbin/dumb-init \
-    && echo "$DI_SHA  /sbin/dumb-init" | sha256sum -c - \
-    && chmod +x /sbin/dumb-init \
     && chmod +x /ready-probe.sh \
     && mkdir -p $CASSANDRA_CONF \
     && mv /cassandra.yaml /cassandra-env.sh /logback.xml $CASSANDRA_CONF \
